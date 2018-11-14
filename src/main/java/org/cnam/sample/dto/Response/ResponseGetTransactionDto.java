@@ -6,6 +6,11 @@ import java.util.List;
 import java.util.UUID;
 
 public class ResponseGetTransactionDto {
-    private UUID idCompte;
-    private List<Transaction> allTransac;
+    public UUID idCompte;
+    public List<Transaction> allTransac;
+
+    public ResponseGetTransactionDto(UUID idCompte, List<Transaction> allTransac) {
+        this.idCompte = idCompte;
+        this.allTransac = allTransac;
+    }
 }
