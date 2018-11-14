@@ -1,0 +1,41 @@
+server:
+  port: 8085
+
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:sample-app;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    platform: h2
+    username: sa
+    password:
+    driverClassName: org.h2.Driver
+
+  datasource_old:
+    url: jdbc:mysql://psyko460.fr:3306/ebt_tranaction
+    username: ebt
+    password: ebt
+    driverClassName: com.mysql.jdbc.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        show_sql: true
+        use_sql_comments: true
+        format_sql: true
+
+  h2:
+    console:
+      enabled: true
+      path: /console
+      settings:
+        trace: false
+        web-allow-others: false
+
+application:
+  sample:
+    url: http://localhost:8085
+    features:
+      create: /sample/create
