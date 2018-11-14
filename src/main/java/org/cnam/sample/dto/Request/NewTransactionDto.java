@@ -1,5 +1,7 @@
 package org.cnam.sample.dto.Request;
 
+import org.cnam.sample.model.TransactionModel;
+
 import java.math.BigDecimal;
 import java.util.UUID;
 
@@ -10,11 +12,11 @@ public class NewTransactionDto {
     public String type;
     public UUID idType;
 
-    public NewTransactionDto(UUID idEmetteur, UUID idRecepteur, BigDecimal amount, String type, UUID idType) {
-        this.idEmetteur = idEmetteur;
-        this.idRecepteur = idRecepteur;
-        this.amount = amount;
-        this.type = type;
-        this.idType = idType;
+    public NewTransactionDto(TransactionModel transaction) {
+        this.idEmetteur = transaction.getIdEmetteur();
+        this.idRecepteur = transaction.getIdRecepteur();
+        this.amount = transaction.getAmount();
+        this.type = transaction.getType();
+        this.idType = transaction.getIdType();
     }
 }
