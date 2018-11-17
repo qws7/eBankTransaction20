@@ -1,10 +1,13 @@
 package org.cnam.sample.domain;
 
+import org.cnam.sample.model.TransactionModel;
+
 import java.math.BigDecimal;
 import java.util.UUID;
 
 public class Transaction {
 
+    private UUID id;
     private String message;
     private UUID idDebtor;
     private UUID idCredit;
@@ -12,24 +15,12 @@ public class Transaction {
     private String type;
     private UUID idType;
 
-    public Transaction() {
-    }
-
-    public Transaction(UUID idDebtor, UUID idCredit, BigDecimal amount, String type, UUID idType) {
-        this.idDebtor = idDebtor;
-        this.idCredit = idCredit;
-        this.amount = amount;
-        this.type = type;
-        this.idType = idType;
-    }
-
-    public Transaction(String message, UUID idDebtor, UUID idCredit, BigDecimal amount, String type, UUID idType) {
-        this.message = message;
-        this.idDebtor = idDebtor;
-        this.idCredit = idCredit;
-        this.amount = amount;
-        this.type = type;
-        this.idType = idType;
+    public Transaction(TransactionModel  transactionModel) {
+        this.idDebtor = transactionModel.getIdEmetteur();
+        this.idCredit = transactionModel.getIdRecepteur();
+        this.amount = transactionModel.getAmount();
+        this.type = transactionModel.getType();
+        this.idType = transactionModel.getIdType();
     }
 
     public String getMessage() {
@@ -78,5 +69,9 @@ public class Transaction {
 
     public void setIdType(UUID idType) {
         this.idType = idType;
+    }
+
+    public UUID getId() {
+        return id;
     }
 }

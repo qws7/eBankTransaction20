@@ -1,47 +1,59 @@
 package org.cnam.sample.service;
 
 import org.cnam.sample.domain.Transaction;
-import org.cnam.sample.dto.Request.GetTransactionDto;
-import org.cnam.sample.dto.Request.NewTransactionDto;
+import org.cnam.sample.dto.Request.RequestGetTransactionDto;
+import org.cnam.sample.dto.Request.RequestNewTransactionDto;
+import org.cnam.sample.dto.Response.ResponseGetTransactionDto;
 import org.cnam.sample.dto.Response.ResponseNewTransactionDto;
 import org.cnam.sample.model.TransactionModel;
 import org.cnam.sample.repository.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 public class TransactionService {
 
-
-
     @Autowired
     TransactionRepository transactionRepository;
 
-
+    @PersistenceContext
+    private EntityManager em;
 
     public TransactionService() {
     }
 
+    public ResponseNewTransactionDto createNewTransaction(RequestNewTransactionDto data){
+        TransactionModel transactionModel = new TransactionModel();
+        transactionModel.setIdEmetteur(  data.getIdEmetteur());
+        transactionModel.setIdRecepteur(  data.getIdRecepteur());
+        transactionModel.setAmount(  data.getAmount());
+        transactionModel.setType(  data.getType());
+        transactionModel.setIdType(  data.getIdType());
 
-            public ResponseNewTransactionDto createNewTransaction(NewTransactionDto data){
-                TransactionModel transactionModelQuery = new TransactionModel(data.idEmetteur,data.idRecepteur,data.amount,data.type,data.idType);
-                TransactionModel transacModelSaved = transactionRepository.save(transactionModelQuery);
-                return new ResponseNewTransactionDto("Transaction saved",transacModelSaved.getId(),transacModelSaved.getIdEmetteur(),transacModelSaved.getIdRecepteur(),transacModelSaved.getAmount(),transacModelSaved.getType(),transacModelSaved.getIdType());
-            }/*
+        // Everything goes well, save the transaction
+        TransactionModel transacModelSaved = transactionRepository.save(transactionModel);
+        return new ResponseNewTransactionDto("Transaction saved",new Transaction(transacModelSaved));
+    }
 
-            public Transac getTransac(long id) {
-                TransacModel transacModelFound = transacRepository.getOne(id);
-                return new Transac(transacModelFound.getId(),transacModelFound.getData());
-            }
+    public ResponseGetTransactionDto getAllTransaction(UUID id){
+        //Create the Res DTO
+        ResponseGetTransactionDto responseGetTransactionDto = new ResponseGetTransactionDto();
 
-            public String createNewTransacExternal(TransactionModel data){
-                RestTemplate restTemplate = new RestTemplate();
-                NewTransactionDto myRequest = new NewTransactionDto(data);
+        // Prepare the DB Request
+        TypedQuery<TransactionModel> query = em.createQuery("FROM TransactionModel t WHERE t.idEmetteur = :id OR t.idRecepteur = :id", TransactionModel.class);
+        query.setParameter("id", id);
 
-                ResponseNewTransactionDto myResponse = restTemplate.postForObject(clientApplication+ createNewClientPath, myRequest, NewTransactionDto.class);
-                LOGGER.info(myResponse.toString());
-                return myResponse.toString();
-            }*/
+        // Prepare the Res DTO
+        responseGetTransactionDto.setAllTransacModel(query.getResultList());
+        responseGetTransactionDto.setIdCompte(id);
+
+        // Send the result
+        return responseGetTransactionDto;
+    }
 }

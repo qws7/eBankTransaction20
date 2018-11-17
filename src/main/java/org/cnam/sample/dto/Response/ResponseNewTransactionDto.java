@@ -1,24 +1,35 @@
 package org.cnam.sample.dto.Response;
 
+import org.cnam.sample.domain.Transaction;
+
 import java.math.BigDecimal;
 import java.util.UUID;
 
 public class ResponseNewTransactionDto {
-    public String message;
-    public UUID idTransac;
-    public UUID idEmetteur;
-    public UUID idRecepteur;
-    public BigDecimal amount;
-    public String type;
-    public  UUID idType;
+    private String message;
+    private Transaction transaction;
 
-    public ResponseNewTransactionDto(String message, UUID idTransac, UUID idEmetteur, UUID idRecepteur, BigDecimal amount, String type, UUID idType) {
+    public ResponseNewTransactionDto() {
+    }
+
+    public ResponseNewTransactionDto(String message, Transaction transaction) {
         this.message = message;
-        this.idTransac = idTransac;
-        this.idEmetteur = idEmetteur;
-        this.idRecepteur = idRecepteur;
-        this.amount = amount;
-        this.type = type;
-        this.idType = idType;
+        this.transaction = transaction;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public Transaction getTransaction() {
+        return transaction;
+    }
+
+    public void setTransaction(Transaction transaction) {
+        this.transaction = transaction;
     }
 }
