@@ -8,58 +8,40 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
-@Table(name = "ebt_transaction")
+@Table(name = "EBT_TRANSACTION")
 public class TransactionModel {
-
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column( columnDefinition = "uuid")
-    private UUID id;
+    private Long id;
 
-    private UUID idEmetteur;
+    private String idEmetteur;
 
-    private UUID idRecepteur;
+    private String idRecepteur;
 
     private BigDecimal amount;
 
     private String type;
 
-    private UUID idType;
+    private String idType;
 
     public TransactionModel(){
 
     }
 
-    public TransactionModel(UUID id, UUID idEmetteur, UUID idRecepteur, BigDecimal amount, String type, UUID idType) {
-        this.id = id;
-        this.idEmetteur = idEmetteur;
-        this.idRecepteur = idRecepteur;
-        this.amount = amount;
-        this.type = type;
-        this.idType = idType;
-    }
-
-    public TransactionModel(Transaction transaction) {
-        this.idEmetteur = transaction.getIdDebtor();
-        this.idRecepteur = transaction.getIdCredit();
-        this.amount = transaction.getAmount();
-        this.type = transaction.getType();
-        this.idType = transaction.getIdType();
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 
-    public UUID getIdEmetteur() {
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getIdEmetteur() {
         return idEmetteur;
     }
 
-    public UUID getIdRecepteur() {
+    public String getIdRecepteur() {
         return idRecepteur;
     }
 
@@ -71,15 +53,15 @@ public class TransactionModel {
         return type;
     }
 
-    public UUID getIdType() {
+    public String getIdType() {
         return idType;
     }
 
-    public void setIdEmetteur(UUID idEmetteur) {
+    public void setIdEmetteur(String idEmetteur) {
         this.idEmetteur = idEmetteur;
     }
 
-    public void setIdRecepteur(UUID idRecepteur) {
+    public void setIdRecepteur(String idRecepteur) {
         this.idRecepteur = idRecepteur;
     }
 
@@ -91,7 +73,7 @@ public class TransactionModel {
         this.type = type;
     }
 
-    public void setIdType(UUID idType) {
+    public void setIdType(String idType) {
         this.idType = idType;
     }
 }

@@ -11,31 +11,31 @@ public class RequestNewTransactionDto {
     private UUID idRecepteur;
     private BigDecimal amount;
     private String type;
+    private UUID idType;
 
-    public UUID getIdType() {
-        return idType;
+    public String getIdType() {
+        return idType.toString();
     }
 
     public void setIdType(UUID idType) {
         this.idType = idType;
     }
 
-    private UUID idType;
 
     public  RequestNewTransactionDto(){
 
     }
 
-    public UUID getIdEmetteur() {
-        return idEmetteur;
+    public String getIdEmetteur() {
+        return idEmetteur.toString();
     }
 
     public void setIdEmetteur(UUID idEmetteur) {
         this.idEmetteur = idEmetteur;
     }
 
-    public UUID getIdRecepteur() {
-        return idRecepteur;
+    public String getIdRecepteur() {
+        return  idRecepteur.toString();
     }
 
     public void setIdRecepteur(UUID idRecepteur) {

@@ -3,19 +3,18 @@ package org.cnam.sample.domain;
 import org.cnam.sample.model.TransactionModel;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 
 public class Transaction {
 
-    private UUID id;
-    private String message;
-    private UUID idDebtor;
-    private UUID idCredit;
+    private Long id;
+    private String idDebtor;
+    private String idCredit;
     private BigDecimal amount;
     private String type;
-    private UUID idType;
+    private String idType;
 
     public Transaction(TransactionModel  transactionModel) {
+        this.id = transactionModel.getId();
         this.idDebtor = transactionModel.getIdEmetteur();
         this.idCredit = transactionModel.getIdRecepteur();
         this.amount = transactionModel.getAmount();
@@ -23,27 +22,19 @@ public class Transaction {
         this.idType = transactionModel.getIdType();
     }
 
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public UUID getIdDebtor() {
+    public String getIdDebtor() {
         return idDebtor;
     }
 
-    public void setIdDebtor(UUID idDebtor) {
+    public void setIdDebtor(String idDebtor) {
         this.idDebtor = idDebtor;
     }
 
-    public UUID getIdCredit() {
+    public String getIdCredit() {
         return idCredit;
     }
 
-    public void setIdCredit(UUID idCredit) {
+    public void setIdCredit(String idCredit) {
         this.idCredit = idCredit;
     }
 
@@ -63,15 +54,15 @@ public class Transaction {
         this.type = type;
     }
 
-    public UUID getIdType() {
+    public String getIdType() {
         return idType;
     }
 
-    public void setIdType(UUID idType) {
+    public void setIdType(String idType) {
         this.idType = idType;
     }
 
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 }

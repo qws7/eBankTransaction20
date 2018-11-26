@@ -31,3 +31,23 @@ spring:
 application:
   sample:
     url: http://localhost:8085
+  compte :
+    url : http://masuper:8081
+    feature :
+      withdraw : /withdraw
+  mail :
+    url: http://192.168.43.12:8085
+    feature:
+      send : /mailing/send
+  facture :
+    url: http://masuper:8081
+    feature:
+      create: /facture/create
+  securite :
+    url: http://masuper:8081
+    feature:
+      check : /user/{id}/right/transaction
+  monetique :
+    url: http://masuper:8081
+    feature:
+      getCards : /GetIdCb

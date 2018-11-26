@@ -3,14 +3,14 @@ package org.cnam.sample.dto.Request;
 import java.util.UUID;
 
 public class RequestGetTransactionDto {
-    private UUID idCompte;
+    private String idCompte;
 
     public RequestGetTransactionDto(UUID idCompte) {
 
-        this.idCompte = idCompte;
+        this.idCompte = idCompte.toString();
     }
 
     public UUID getIdCompte() {
-        return idCompte;
+        return  UUID.fromString(idCompte);
     }
 }
