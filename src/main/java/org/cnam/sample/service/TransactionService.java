@@ -106,7 +106,7 @@ public class TransactionService {
 
         final mailRequestDto mailRequestDto = new mailRequestDto(serviceName, values,recipient);
 
-        final String quote = restTemplate.postForObject(url_mail+url_mail_send, mailRequestDto, String.class);
+        final String response = restTemplate.postForObject(url_mail+url_mail_send, mailRequestDto, String.class);
     }
 
     public void callRemoteFacture(long id_client, String libelle_frais, double montant, Date date)
@@ -115,6 +115,6 @@ public class TransactionService {
 
         final NewFactureDto newFactureDto = new NewFactureDto( id_client, libelle_frais, montant,  date);
 
-        final String quote = restTemplate.postForObject(url_facture+url_facture_create, newFactureDto, String.class);
+        final String response = restTemplate.postForObject(url_facture+url_facture_create, newFactureDto, String.class);
     }
 }
