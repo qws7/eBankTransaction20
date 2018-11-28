@@ -1,13 +1,14 @@
 package org.cnam.sample.dto.Request;
 
 import java.util.Date;
+import java.util.UUID;
 
 public class NewFactureDto {
-    public Long getId_client() {
+    public UUID getId_client() {
         return id_client;
     }
 
-    public void setId_client(Long id_client) {
+    public void setId_client(UUID id_client) {
         this.id_client = id_client;
     }
 
@@ -35,7 +36,7 @@ public class NewFactureDto {
         this.date = date;
     }
 
-    private  Long id_client;
+    private  UUID id_client;
 
         private String libelle_frais;
 
@@ -47,7 +48,7 @@ public class NewFactureDto {
 
         }
 
-        public NewFactureDto(long id_client, String libelle_frais, double montant, Date date){
+        public NewFactureDto(UUID id_client, String libelle_frais, double montant, Date date){
             //this.id = id;
             this.id_client = id_client;
             this.libelle_frais = libelle_frais;

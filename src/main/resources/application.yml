@@ -40,7 +40,7 @@ application:
     feature:
       send : /mailing/send
   facture :
-    url: http://masuper:8081
+    url: http://192.168.137.57:8085
     feature:
       create: /facture/create
   securite :

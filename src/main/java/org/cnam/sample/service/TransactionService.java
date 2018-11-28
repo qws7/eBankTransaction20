@@ -17,6 +17,7 @@ import org.springframework.web.client.RestTemplate;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
+import java.time.ZonedDateTime;
 import java.util.*;
 
 @Service
@@ -73,14 +74,18 @@ public class TransactionService {
         TransactionModel transacModelSaved = transactionRepository.save(transactionModel);
         mess = "Transaction saved";
 
-        //call mail
+
+        // call facture
+        callRemoteFacture(UUID.fromString(transacModelSaved.getIdEmetteur()),"Transaction", transacModelSaved.getAmount().doubleValue(), new Date());
+        /*//call mail
         Map<String,String> message = new HashMap<String,String>();
         message.put("Result",mess);
         message.put("Recv",transactionModel.getIdRecepteur());
         message.put("Emet",transactionModel.getIdEmetteur());
         message.put("Amount",transactionModel.getAmount().toString());
         callRemoteServiceMail("Transaction",message,transactionModel.getIdRecepteur());
-        callRemoteServiceMail("Transaction",message,transactionModel.getIdEmetteur());
+        callRemoteServiceMail("Transaction",message,transactionModel.getIdEmetteur());*/
+
         return new ResponseNewTransactionDto(mess,new Transaction(transacModelSaved));
     }
 
@@ -109,7 +114,7 @@ public class TransactionService {
         final String response = restTemplate.postForObject(url_mail+url_mail_send, mailRequestDto, String.class);
     }
 
-    public void callRemoteFacture(long id_client, String libelle_frais, double montant, Date date)
+    public void callRemoteFacture(UUID id_client, String libelle_frais, double montant, Date date)
     {
         final RestTemplate restTemplate = new RestTemplate();
 
