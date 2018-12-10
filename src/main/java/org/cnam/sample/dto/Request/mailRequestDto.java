@@ -1,45 +1,35 @@
 package org.cnam.sample.dto.Request;
+import org.cnam.sample.domain.Email;
+
 import java.util.Map;
 
-public class mailRequestDto {
+public class mailRequestDto{
 
-        private String _serviceName;
-        private Map<String,String> _values;
-        private String _recipient;
+    // Voir ci-dessous
+    private Email email;
 
+    public Email getEmail() {
+        return email;
+    }
 
-        public mailRequestDto (String serviceName, Map<String,String> values,String recipient) {
+    public void setEmail(Email email) {
+        this.email = email;
+    }
 
-            this._serviceName = serviceName;
-            this._values = values;
-            this._recipient = recipient;
-        }
+    public String getService() {
+        return service;
+    }
 
-        public mailRequestDto () {
+    public void setService(String service) {
+        this.service = service;
+    }
 
-        }
+    // Nom de votre service
+    private String service;
 
-        public String get_serviceName() {
-            return _serviceName;
-        }
-
-        public void set_serviceName(String serviceName) {
-            this._serviceName = serviceName;
-        }
-
-        public Map<String, String> get_values() {
-            return _values;
-        }
-
-        public void set_values(Map<String, String> values) {
-            this._values = values;
-        }
-
-        public String get_recipient() {
-            return _recipient;
-        }
-
-        public void set_recipient(String recipient) {
-            this._recipient = recipient;
-        }
+    public mailRequestDto(Email email,String service){
+        this.email = email;
+        this.service = service;
+    }
 }
+

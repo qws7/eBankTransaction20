@@ -32,11 +32,11 @@ application:
   sample:
     url: http://localhost:8085
   compte :
-    url : http://masuper:8081
+    url : http://192.168.43.160
     feature :
-      withdraw : /withdraw
+      withdraw : /account/transaction
   mail :
-    url: http://192.168.43.12:8085
+    url: http://192.168.43.201:8085
     feature:
       send : /mailing/send
   facture :
@@ -44,10 +44,11 @@ application:
     feature:
       create: /facture/create
   securite :
-    url: http://masuper:8081
+    url: http://192.168.43.244:8085
     feature:
-      check : /user/{id}/right/transaction
+      check : /user/
+      service : /right/transaction
   monetique :
-    url: http://masuper:8081
+    url: http://192.168.43.231:8085
     feature:
       getCards : /GetIdCb

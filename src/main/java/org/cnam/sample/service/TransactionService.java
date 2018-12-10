@@ -1,12 +1,8 @@
 package org.cnam.sample.service;
 
 import org.cnam.sample.domain.Transaction;
-import org.cnam.sample.dto.Request.NewFactureDto;
-import org.cnam.sample.dto.Request.RequestGetTransactionDto;
-import org.cnam.sample.dto.Request.RequestNewTransactionDto;
-import org.cnam.sample.dto.Request.mailRequestDto;
-import org.cnam.sample.dto.Response.ResponseGetTransactionDto;
-import org.cnam.sample.dto.Response.ResponseNewTransactionDto;
+import org.cnam.sample.dto.Request.*;
+import org.cnam.sample.dto.Response.*;
 import org.cnam.sample.model.TransactionModel;
 import org.cnam.sample.repository.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +13,8 @@ import org.springframework.web.client.RestTemplate;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
+import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.*;
 
@@ -43,7 +41,12 @@ public class TransactionService {
     private String url_facture_create ;
 
     @Value("${application.securite.url}")
-    private String url_securite ;
+    private String url_securite;
+    @Value("${application.securite.feature.service}")
+    private String url_securite_service;
+    @Value("${application.securite.feature.service}")
+    private String url_securite_check ;
+
     @Value("${application.monetique.url}")
     private String url_monetique ;
 
@@ -51,7 +54,6 @@ public class TransactionService {
     }
 
     public ResponseNewTransactionDto createNewTransaction(RequestNewTransactionDto data){
-        String mess = "";
         TransactionModel transactionModel = new TransactionModel();
         transactionModel.setIdEmetteur(  data.getIdEmetteur());
         transactionModel.setIdRecepteur(  data.getIdRecepteur());
@@ -59,32 +61,38 @@ public class TransactionService {
         transactionModel.setType(  data.getType());
         transactionModel.setIdType(  data.getIdType());
 
+        Map<String,String> message = new HashMap<String,String>();
+        message.put("Recv",transactionModel.getIdRecepteur());
+        message.put("Emet",transactionModel.getIdEmetteur());
+        message.put("Amount",transactionModel.getAmount().toString());
+
         //ask Security
+        ResponseSecurityRightDto responseSecurityRightDto = callRemoteSecurity(transactionModel.getIdEmetteur());
+        message.put("ResSecu",responseSecurityRightDto.isAllowed() ? "true" : "false");
 
-        //ask monetary
+        //ask withdraw account et credit account
+        ResponseWithdrawCompteDto responseWithdrawCompteDto_withdraw = callRemoteCompte(transactionModel.getIdEmetteur(), transactionModel.getAmount().negate());
+        message.put("wd_label","Withdraw account res");
+        message.put("wd_res_1",responseWithdrawCompteDto_withdraw.getMessage());
 
-        //ask ompte 1
+        ResponseWithdrawCompteDto responseWithdrawCompteDto_credit = callRemoteCompte(transactionModel.getIdRecepteur(), transactionModel.getAmount());
+        message.put("cd_label","Credit account res");
+        message.put("cd_res_1",responseWithdrawCompteDto_credit.getMessage());
 
-        //ask compte 2
-
-
-
+        //create  facture
+        ResponseNewFactureDto responseNewFactureDto = callRemoteFacture(UUID.fromString(transactionModel.getIdEmetteur()),"transaction",1.0,Date.from(Instant.now()));
+        message.put("facture_label","Facturation : ");
+        message.put("facture_val",responseNewFactureDto.getMessage());
 
         // Everything goes well, save the transaction
         TransactionModel transacModelSaved = transactionRepository.save(transactionModel);
         mess = "Transaction saved";
+        message.put("transac_label","Facture Res");
+        message.put("transac_val",responseNewFactureDto.getMessage());
 
-
-        // call facture
-        callRemoteFacture(UUID.fromString(transacModelSaved.getIdEmetteur()),"Transaction", transacModelSaved.getAmount().doubleValue(), new Date());
-        /*//call mail
-        Map<String,String> message = new HashMap<String,String>();
-        message.put("Result",mess);
-        message.put("Recv",transactionModel.getIdRecepteur());
-        message.put("Emet",transactionModel.getIdEmetteur());
-        message.put("Amount",transactionModel.getAmount().toString());
+        //call mail
         callRemoteServiceMail("Transaction",message,transactionModel.getIdRecepteur());
-        callRemoteServiceMail("Transaction",message,transactionModel.getIdEmetteur());*/
+        callRemoteServiceMail("Transaction",message,transactionModel.getIdEmetteur());
 
         return new ResponseNewTransactionDto(mess,new Transaction(transacModelSaved));
     }
@@ -114,12 +122,26 @@ public class TransactionService {
         final String response = restTemplate.postForObject(url_mail+url_mail_send, mailRequestDto, String.class);
     }
 
-    public void callRemoteFacture(UUID id_client, String libelle_frais, double montant, Date date)
+    private ResponseNewFactureDto callRemoteFacture(UUID id_client, String libelle_frais, double montant, Date date)
     {
         final RestTemplate restTemplate = new RestTemplate();
 
         final NewFactureDto newFactureDto = new NewFactureDto( id_client, libelle_frais, montant,  date);
 
-        final String response = restTemplate.postForObject(url_facture+url_facture_create, newFactureDto, String.class);
+        return restTemplate.postForObject(url_facture+url_facture_create, newFactureDto, ResponseNewFactureDto.class);
+    }
+
+    private ResponseSecurityRightDto callRemoteSecurity (String id){
+        final RestTemplate restTemplate = new RestTemplate();
+
+        return restTemplate.getForObject(url_securite+url_securite_check+id+url_securite_service, ResponseSecurityRightDto.class);
+    }
+
+    private ResponseWithdrawCompteDto callRemoteCompte(String id, BigDecimal amount){
+        final RestTemplate restTemplate = new RestTemplate();
+
+        final RequestWithdrawCompteDto requestWithdrawCompteDto = new RequestWithdrawCompteDto(UUID.fromString(id),amount);
+
+        return restTemplate.postForObject(url_facture+url_facture_create, requestWithdrawCompteDto, ResponseWithdrawCompteDto.class);
     }
 }
