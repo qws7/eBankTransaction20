@@ -1,5 +1,7 @@
 package org.cnam.sample.service;
 
+import org.cnam.sample.domain.Email;
+import org.cnam.sample.domain.EmailTemplate;
 import org.cnam.sample.domain.Transaction;
 import org.cnam.sample.dto.Request.*;
 import org.cnam.sample.dto.Response.*;
@@ -29,6 +31,8 @@ public class TransactionService {
 
     @Value("${application.compte.url}")
     private String url_compte ;
+    @Value("${application.compte.feature.withdraw}")
+    private String url_compte_withdraw ;
 
     @Value("${application.mail.url}")
     private String url_mail ;
@@ -66,35 +70,41 @@ public class TransactionService {
         message.put("Emet",transactionModel.getIdEmetteur());
         message.put("Amount",transactionModel.getAmount().toString());
 
-        //ask Security
+        /*ask Security
         ResponseSecurityRightDto responseSecurityRightDto = callRemoteSecurity(transactionModel.getIdEmetteur());
-        message.put("ResSecu",responseSecurityRightDto.isAllowed() ? "true" : "false");
+        message.put("secu_label","Res sécurité");
+        message.put("secu_val",responseSecurityRightDto.isAllowed() ? "true" : "false");
 
         //ask withdraw account et credit account
         ResponseWithdrawCompteDto responseWithdrawCompteDto_withdraw = callRemoteCompte(transactionModel.getIdEmetteur(), transactionModel.getAmount().negate());
         message.put("wd_label","Withdraw account res");
         message.put("wd_res_1",responseWithdrawCompteDto_withdraw.getMessage());
+        if(!responseWithdrawCompteDto_withdraw.getRequestSuceed())
+            return new ResponseNewTransactionDto("Error width withdrawal, see mail",null);
 
         ResponseWithdrawCompteDto responseWithdrawCompteDto_credit = callRemoteCompte(transactionModel.getIdRecepteur(), transactionModel.getAmount());
         message.put("cd_label","Credit account res");
         message.put("cd_res_1",responseWithdrawCompteDto_credit.getMessage());
+        if(!responseWithdrawCompteDto_credit.getRequestSuceed())
+            return new ResponseNewTransactionDto("Error with Credit, see mail",null);
 
         //create  facture
         ResponseNewFactureDto responseNewFactureDto = callRemoteFacture(UUID.fromString(transactionModel.getIdEmetteur()),"transaction",1.0,Date.from(Instant.now()));
         message.put("facture_label","Facturation : ");
         message.put("facture_val",responseNewFactureDto.getMessage());
+        if(!responseNewFactureDto.isSuccess())
+            return new ResponseNewTransactionDto("Error with facture, see mail",null);
 
         // Everything goes well, save the transaction
         TransactionModel transacModelSaved = transactionRepository.save(transactionModel);
-        mess = "Transaction saved";
-        message.put("transac_label","Facture Res");
+        message.put("transac_label","Transaction Res");
         message.put("transac_val",responseNewFactureDto.getMessage());
 
         //call mail
-        callRemoteServiceMail("Transaction",message,transactionModel.getIdRecepteur());
-        callRemoteServiceMail("Transaction",message,transactionModel.getIdEmetteur());
+        //callRemoteServiceMail("Transaction",message,transactionModel.getIdRecepteur());
+        //callRemoteServiceMail("Transaction",message,transactionModel.getIdEmetteur());
 
-        return new ResponseNewTransactionDto(mess,new Transaction(transacModelSaved));
+        return new ResponseNewTransactionDto("Transaction Saved",new Transaction(transacModelSaved));
     }
 
     public ResponseGetTransactionDto getAllTransaction(UUID id){
@@ -113,13 +123,13 @@ public class TransactionService {
         return responseGetTransactionDto;
     }
 
-    public void callRemoteServiceMail(String serviceName, Map<String,String> values, String recipient)
+    private void callRemoteServiceMail(String serviceName, Map<String,String> values, String recipient)
     {
         final RestTemplate restTemplate = new RestTemplate();
+        //Email email = new Email();
+        //final mailRequestDto mailRequestDto = new mailRequestDto(serviceName, values,recipient);
 
-        final mailRequestDto mailRequestDto = new mailRequestDto(serviceName, values,recipient);
-
-        final String response = restTemplate.postForObject(url_mail+url_mail_send, mailRequestDto, String.class);
+        //final String response = restTemplate.postForObject(url_mail+url_mail_send, mailRequestDto, String.class);
     }
 
     private ResponseNewFactureDto callRemoteFacture(UUID id_client, String libelle_frais, double montant, Date date)
@@ -142,6 +152,6 @@ public class TransactionService {
 
         final RequestWithdrawCompteDto requestWithdrawCompteDto = new RequestWithdrawCompteDto(UUID.fromString(id),amount);
 
-        return restTemplate.postForObject(url_facture+url_facture_create, requestWithdrawCompteDto, ResponseWithdrawCompteDto.class);
+        return restTemplate.postForObject(url_compte+url_compte_withdraw, requestWithdrawCompteDto, ResponseWithdrawCompteDto.class);
     }
 }

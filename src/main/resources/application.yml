@@ -29,8 +29,6 @@ spring:
         web-allow-others: false
 
 application:
-  sample:
-    url: http://localhost:8085
   compte :
     url : http://192.168.43.160
     feature :
@@ -40,7 +38,7 @@ application:
     feature:
       send : /mailing/send
   facture :
-    url: http://192.168.137.57:8085
+    url: http://192.168.43.161:8085
     feature:
       create: /facture/create
   securite :
@@ -49,6 +47,6 @@ application:
       check : /user/
       service : /right/transaction
   monetique :
-    url: http://192.168.43.231:8085
+    url: http://192.168.43.244:8085
     feature:
       getCards : /GetIdCb
