@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class ResponseGetTransactionDto {
+public class ResponseGetTransactionDto implements ResponseDto{
     private UUID idCompte;
     private List<Transaction> allTransac;
 

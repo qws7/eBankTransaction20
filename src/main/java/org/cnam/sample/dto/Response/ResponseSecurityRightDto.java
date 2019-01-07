@@ -1,6 +1,6 @@
 package org.cnam.sample.dto.Response;
 
-public class ResponseSecurityRightDto {
+public class ResponseSecurityRightDto  implements ResponseDto{
 
     private String name;
 

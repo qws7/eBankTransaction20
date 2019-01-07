@@ -3,7 +3,7 @@ package org.cnam.sample.dto.Response;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class ResponseNewFactureDto {
+public class ResponseNewFactureDto  implements ResponseDto{
     private boolean success;
 
     @JsonCreator

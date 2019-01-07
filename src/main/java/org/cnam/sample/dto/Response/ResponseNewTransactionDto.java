@@ -5,7 +5,7 @@ import org.cnam.sample.domain.Transaction;
 import java.math.BigDecimal;
 import java.util.UUID;
 
-public class ResponseNewTransactionDto {
+public class ResponseNewTransactionDto  implements ResponseDto{
     private String message;
     private Transaction transaction;
 

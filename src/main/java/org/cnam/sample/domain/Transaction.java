@@ -3,6 +3,7 @@ package org.cnam.sample.domain;
 import org.cnam.sample.model.TransactionModel;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 public class Transaction {
 
@@ -11,7 +12,7 @@ public class Transaction {
     private String idCredit;
     private BigDecimal amount;
     private String type;
-    private String idType;
+    private UUID idType;
 
     public Transaction(TransactionModel  transactionModel) {
         this.id = transactionModel.getId();
@@ -54,11 +55,11 @@ public class Transaction {
         this.type = type;
     }
 
-    public String getIdType() {
+    public UUID getIdType() {
         return idType;
     }
 
-    public void setIdType(String idType) {
+    public void setIdType(UUID idType) {
         this.idType = idType;
     }
 

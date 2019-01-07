@@ -53,8 +53,8 @@ public class TransactionModel {
         return type;
     }
 
-    public String getIdType() {
-        return idType;
+    public UUID getIdType() {
+        return UUID.fromString(idType);
     }
 
     public void setIdEmetteur(String idEmetteur) {
@@ -73,7 +73,7 @@ public class TransactionModel {
         this.type = type;
     }
 
-    public void setIdType(String idType) {
-        this.idType = idType;
+    public void setIdType(UUID idType) {
+        this.idType = idType.toString();
     }
 }

@@ -7,6 +7,9 @@ import org.cnam.sample.dto.Request.*;
 import org.cnam.sample.dto.Response.*;
 import org.cnam.sample.model.TransactionModel;
 import org.cnam.sample.repository.TransactionRepository;
+import org.cnam.sample.service.Requests.FactureRequestStrategy;
+import org.cnam.sample.service.Requests.RequestStrategy;
+import org.cnam.sample.service.Requests.SecurityRequestStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -48,11 +51,17 @@ public class TransactionService {
     private String url_securite;
     @Value("${application.securite.feature.service}")
     private String url_securite_service;
-    @Value("${application.securite.feature.service}")
+    @Value("${application.securite.feature.check}")
     private String url_securite_check ;
 
     @Value("${application.monetique.url}")
     private String url_monetique ;
+
+
+    @Value("${application.user.url}")
+    private String url_user;
+    @Value("${application.user.feature.getLogin}")
+    private String url_user_login;
 
     public TransactionService() {
     }
@@ -63,19 +72,25 @@ public class TransactionService {
         transactionModel.setIdRecepteur(  data.getIdRecepteur());
         transactionModel.setAmount(  data.getAmount());
         transactionModel.setType(  data.getType());
-        transactionModel.setIdType(  data.getIdType());
+        transactionModel.setIdType(  UUID.fromString(data.getIdType()));
 
         Map<String,String> message = new HashMap<String,String>();
         message.put("Recv",transactionModel.getIdRecepteur());
         message.put("Emet",transactionModel.getIdEmetteur());
         message.put("Amount",transactionModel.getAmount().toString());
+        RequestStrategy requestStrategy;
 
-        /*ask Security
-        ResponseSecurityRightDto responseSecurityRightDto = callRemoteSecurity(transactionModel.getIdEmetteur());
-        message.put("secu_label","Res sécurité");
-        message.put("secu_val",responseSecurityRightDto.isAllowed() ? "true" : "false");
+        //ask account to have user id
 
-        //ask withdraw account et credit account
+        //ask user to have login
+
+
+        //ask Security
+        requestStrategy = new SecurityRequestStrategy(callRemoteSecurity("test"));
+        if(!requestStrategy.status(message))
+        return new ResponseNewTransactionDto("Error with facture, see mail",null);
+
+        /*ask withdraw account et credit account
         ResponseWithdrawCompteDto responseWithdrawCompteDto_withdraw = callRemoteCompte(transactionModel.getIdEmetteur(), transactionModel.getAmount().negate());
         message.put("wd_label","Withdraw account res");
         message.put("wd_res_1",responseWithdrawCompteDto_withdraw.getMessage());
@@ -89,10 +104,9 @@ public class TransactionService {
             return new ResponseNewTransactionDto("Error with Credit, see mail",null);*/
 
         //create  facture
-        ResponseNewFactureDto responseNewFactureDto = callRemoteFacture(UUID.fromString(transactionModel.getIdEmetteur()),"transaction",1.0,Date.from(Instant.now()));
-        message.put("facture_label","Facturation : ");
-        message.put("facture_val",responseNewFactureDto.getMessage());
-        if(!responseNewFactureDto.isSuccess())
+        requestStrategy = new FactureRequestStrategy(callRemoteFacture(UUID.fromString(transactionModel.getIdEmetteur()),"transaction",1.0,Date.from(Instant.now()));
+
+        if(!requestStrategy.status(message))
             return new ResponseNewTransactionDto("Error with facture, see mail",null);
 
         // Everything goes well, save the transaction
@@ -141,10 +155,12 @@ public class TransactionService {
         return restTemplate.postForObject(url_facture+url_facture_create, newFactureDto, ResponseNewFactureDto.class);
     }
 
-    private ResponseSecurityRightDto callRemoteSecurity (String id){
+    private ResponseSecurityRightDto callRemoteSecurity (String login){
         final RestTemplate restTemplate = new RestTemplate();
 
-        return restTemplate.getForObject(url_securite+url_securite_check+id+url_securite_service, ResponseSecurityRightDto.class);
+        final RequestSecurityRightDto requestSecurityRightDto = new RequestSecurityRightDto(login,"Transaction");
+
+        return restTemplate.getForObject(url_securite+url_securite_check+login+url_securite_service, ResponseSecurityRightDto.class);
     }
 
     private ResponseWithdrawCompteDto callRemoteCompte(String id, BigDecimal amount){

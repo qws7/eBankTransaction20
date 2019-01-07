@@ -29,6 +29,10 @@ spring:
         web-allow-others: false
 
 application:
+  user :
+    url : http://cnam-nfe107.k8s.grobert.fr
+    feature :
+      getLogin : /client/
   compte :
     url : http://192.168.43.160
     feature :
@@ -45,8 +49,9 @@ application:
     url: http://192.168.43.244:8085
     feature:
       check : /user/
-      service : /right/transaction
+      service : /rights/transaction
   monetique :
     url: http://192.168.43.244:8085
     feature:
       getCards : /GetIdCb
+      auth : /pay
