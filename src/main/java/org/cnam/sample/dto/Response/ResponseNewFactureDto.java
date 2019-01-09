@@ -13,6 +13,9 @@ public class ResponseNewFactureDto  implements ResponseDto{
         this.message = message;
     }
 
+    public ResponseNewFactureDto() {
+    }
+
     public String getMessage() {
         return message;
     }

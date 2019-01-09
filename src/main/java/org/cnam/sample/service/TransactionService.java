@@ -1,15 +1,12 @@
 package org.cnam.sample.service;
 
-import org.cnam.sample.domain.Email;
-import org.cnam.sample.domain.EmailTemplate;
 import org.cnam.sample.domain.Transaction;
 import org.cnam.sample.dto.Request.*;
 import org.cnam.sample.dto.Response.*;
+import org.cnam.sample.dto.Response.ResponseWithdrawCompteDto;
 import org.cnam.sample.model.TransactionModel;
 import org.cnam.sample.repository.TransactionRepository;
-import org.cnam.sample.service.Requests.FactureRequestStrategy;
-import org.cnam.sample.service.Requests.RequestStrategy;
-import org.cnam.sample.service.Requests.SecurityRequestStrategy;
+import org.cnam.sample.service.Requests.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -20,7 +17,6 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.ZonedDateTime;
 import java.util.*;
 
 @Service
@@ -32,36 +28,13 @@ public class TransactionService {
     @PersistenceContext
     private EntityManager em;
 
-    @Value("${application.compte.url}")
-    private String url_compte ;
-    @Value("${application.compte.feature.withdraw}")
-    private String url_compte_withdraw ;
-
     @Value("${application.mail.url}")
     private String url_mail ;
     @Value("${application.mail.feature.send}")
     private String url_mail_send ;
 
-    @Value("${application.facture.url}")
-    private String url_facture ;
-    @Value("${application.facture.feature.create}")
-    private String url_facture_create ;
-
-    @Value("${application.securite.url}")
-    private String url_securite;
-    @Value("${application.securite.feature.service}")
-    private String url_securite_service;
-    @Value("${application.securite.feature.check}")
-    private String url_securite_check ;
-
     @Value("${application.monetique.url}")
     private String url_monetique ;
-
-
-    @Value("${application.user.url}")
-    private String url_user;
-    @Value("${application.user.feature.getLogin}")
-    private String url_user_login;
 
     public TransactionService() {
     }
@@ -73,52 +46,69 @@ public class TransactionService {
         transactionModel.setAmount(  data.getAmount());
         transactionModel.setType(  data.getType());
         transactionModel.setIdType(  UUID.fromString(data.getIdType()));
-
-        Map<String,String> message = new HashMap<String,String>();
-        message.put("Recv",transactionModel.getIdRecepteur());
-        message.put("Emet",transactionModel.getIdEmetteur());
-        message.put("Amount",transactionModel.getAmount().toString());
+        List<String> message = new ArrayList<String>();
         RequestStrategy requestStrategy;
+        boolean err = false;
 
-        //ask account to have user id
+
+        message.add("Recv :"+transactionModel.getIdRecepteur());
+        message.add("Emet :"+transactionModel.getIdEmetteur());
+        message.add("Amount :"+transactionModel.getAmount().toString());
+        message.add("mail : " + url_mail );
 
         //ask user to have login
+        requestStrategy = new ClientRequestStrategy(new RequestClientDto(transactionModel.getIdEmetteur()));
+        ResponseClientDto responseClientDto = (ResponseClientDto ) requestStrategy.callRemote(message);
+        if(!requestStrategy.status(message)){
+            err = true;
+            message.add("err :"+"Error with Security, see mail");
+        }
 
+        //ask Security for auth for login
+        requestStrategy = new SecurityRequestStrategy(new RequestSecurityRightDto(responseClientDto.getLastName(),"Transaction"));
+        requestStrategy.callRemote(message);
+        if(!requestStrategy.status(message)){
+            err = true;
+            message.add("err :"+"Error with Security, see mail");
+        }
 
-        //ask Security
-        requestStrategy = new SecurityRequestStrategy(callRemoteSecurity("test"));
-        if(!requestStrategy.status(message))
-        return new ResponseNewTransactionDto("Error with facture, see mail",null);
+        //ask withdraw account
+        message.add("cd_label :" + "Withdraw");
+        requestStrategy = new CompteRequestStrategy(new RequestWithdrawCompteDto(UUID.fromString(transactionModel.getIdEmetteur()),transactionModel.getAmount().negate()));
+        requestStrategy.callRemote(message);
+        if(!requestStrategy.status(message)){
+            err = true;
+            message.add("err :"+"Error width withdrawal, see mail");
+        }
 
-        /*ask withdraw account et credit account
-        ResponseWithdrawCompteDto responseWithdrawCompteDto_withdraw = callRemoteCompte(transactionModel.getIdEmetteur(), transactionModel.getAmount().negate());
-        message.put("wd_label","Withdraw account res");
-        message.put("wd_res_1",responseWithdrawCompteDto_withdraw.getMessage());
-        if(!responseWithdrawCompteDto_withdraw.getRequestSuceed())
-            return new ResponseNewTransactionDto("Error width withdrawal, see mail",null);
-
-        ResponseWithdrawCompteDto responseWithdrawCompteDto_credit = callRemoteCompte(transactionModel.getIdRecepteur(), transactionModel.getAmount());
-        message.put("cd_label","Credit account res");
-        message.put("cd_res_1",responseWithdrawCompteDto_credit.getMessage());
-        if(!responseWithdrawCompteDto_credit.getRequestSuceed())
-            return new ResponseNewTransactionDto("Error with Credit, see mail",null);*/
+        //ask credit account
+        message.add("cd_label: " + "Credit");
+        requestStrategy = new CompteRequestStrategy(new RequestWithdrawCompteDto(UUID.fromString(transactionModel.getIdRecepteur()), transactionModel.getAmount()));
+        requestStrategy.callRemote(message);
+        if(!requestStrategy.status(message)){
+            err = true;
+            message.add("err :"+"Error width credit, see mail");
+        }
 
         //create  facture
-        requestStrategy = new FactureRequestStrategy(callRemoteFacture(UUID.fromString(transactionModel.getIdEmetteur()),"transaction",1.0,Date.from(Instant.now()));
+        requestStrategy = new FactureRequestStrategy(new NewFactureDto(UUID.fromString(transactionModel.getIdEmetteur()),"transaction",1.0,Date.from(Instant.now())));
+        requestStrategy.callRemote(message);
+        if(!requestStrategy.status(message)){
+            err = true;
+            message.add("err :"+"Error with facture, see mail");
+        }
 
-        if(!requestStrategy.status(message))
-            return new ResponseNewTransactionDto("Error with facture, see mail",null);
+        TransactionModel transacModelSaved = transactionModel;
 
-        // Everything goes well, save the transaction
-        TransactionModel transacModelSaved = transactionRepository.save(transactionModel);
-        message.put("transac_label","Transaction Res");
-        message.put("transac_val",responseNewFactureDto.getMessage());
+        // Everything goes well, save the transaction else we return unchanged transaction
+        if(!err)
+           transacModelSaved = transactionRepository.save(transactionModel);
 
         //call mail
         //callRemoteServiceMail("Transaction",message,transactionModel.getIdRecepteur());
         //callRemoteServiceMail("Transaction",message,transactionModel.getIdEmetteur());
 
-        return new ResponseNewTransactionDto("Transaction Saved",new Transaction(transacModelSaved));
+        return new ResponseNewTransactionDto(message,new Transaction(transacModelSaved));
     }
 
     public ResponseGetTransactionDto getAllTransaction(UUID id){
@@ -135,39 +125,5 @@ public class TransactionService {
 
         // Send the result
         return responseGetTransactionDto;
-    }
-
-    private void callRemoteServiceMail(String serviceName, Map<String,String> values, String recipient)
-    {
-        final RestTemplate restTemplate = new RestTemplate();
-        //Email email = new Email();
-        //final mailRequestDto mailRequestDto = new mailRequestDto(serviceName, values,recipient);
-
-        //final String response = restTemplate.postForObject(url_mail+url_mail_send, mailRequestDto, String.class);
-    }
-
-    private ResponseNewFactureDto callRemoteFacture(UUID id_client, String libelle_frais, double montant, Date date)
-    {
-        final RestTemplate restTemplate = new RestTemplate();
-
-        final NewFactureDto newFactureDto = new NewFactureDto( id_client, libelle_frais, montant,  date);
-
-        return restTemplate.postForObject(url_facture+url_facture_create, newFactureDto, ResponseNewFactureDto.class);
-    }
-
-    private ResponseSecurityRightDto callRemoteSecurity (String login){
-        final RestTemplate restTemplate = new RestTemplate();
-
-        final RequestSecurityRightDto requestSecurityRightDto = new RequestSecurityRightDto(login,"Transaction");
-
-        return restTemplate.getForObject(url_securite+url_securite_check+login+url_securite_service, ResponseSecurityRightDto.class);
-    }
-
-    private ResponseWithdrawCompteDto callRemoteCompte(String id, BigDecimal amount){
-        final RestTemplate restTemplate = new RestTemplate();
-
-        final RequestWithdrawCompteDto requestWithdrawCompteDto = new RequestWithdrawCompteDto(UUID.fromString(id),amount);
-
-        return restTemplate.postForObject(url_compte+url_compte_withdraw, requestWithdrawCompteDto, ResponseWithdrawCompteDto.class);
     }
 }

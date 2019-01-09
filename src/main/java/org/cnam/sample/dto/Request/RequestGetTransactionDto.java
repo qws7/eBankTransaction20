@@ -2,7 +2,7 @@ package org.cnam.sample.dto.Request;
 
 import java.util.UUID;
 
-public class RequestGetTransactionDto {
+public class RequestGetTransactionDto implements RequestDto {
     private String idCompte;
 
     public RequestGetTransactionDto(UUID idCompte) {

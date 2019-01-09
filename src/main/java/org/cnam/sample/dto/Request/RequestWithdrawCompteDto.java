@@ -1,9 +1,11 @@
 package org.cnam.sample.dto.Request;
 
+import org.springframework.context.annotation.Bean;
+
 import java.math.BigDecimal;
 import java.util.UUID;
 
-public class RequestWithdrawCompteDto {
+public class RequestWithdrawCompteDto  implements RequestDto{
     public UUID getIdAccount() {
         return idAccount;
     }

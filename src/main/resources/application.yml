@@ -29,7 +29,7 @@ spring:
         web-allow-others: false
 
 application:
-  user :
+  client :
     url : http://cnam-nfe107.k8s.grobert.fr
     feature :
       getLogin : /client/

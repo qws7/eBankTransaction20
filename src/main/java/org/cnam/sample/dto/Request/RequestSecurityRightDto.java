@@ -1,6 +1,6 @@
 package org.cnam.sample.dto.Request;
 
-public class RequestSecurityRightDto {
+public class RequestSecurityRightDto  implements RequestDto{
 
     private String login;
 

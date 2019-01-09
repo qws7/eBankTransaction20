@@ -3,7 +3,7 @@ import org.cnam.sample.domain.Email;
 
 import java.util.Map;
 
-public class mailRequestDto{
+public class mailRequestDto implements RequestDto{
 
     // Voir ci-dessous
     private Email email;

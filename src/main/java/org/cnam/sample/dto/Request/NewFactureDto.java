@@ -3,7 +3,7 @@ package org.cnam.sample.dto.Request;
 import java.util.Date;
 import java.util.UUID;
 
-public class NewFactureDto {
+public class NewFactureDto implements RequestDto{
     public UUID getId_client() {
         return id_client;
     }

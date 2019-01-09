@@ -1,6 +1,8 @@
 package org.cnam.sample.dto.Response;
 
-public class ResponseWithdrawCompteDto  implements ResponseDto{
+import org.cnam.sample.dto.Response.ResponseDto;
+
+public class ResponseWithdrawCompteDto  implements ResponseDto {
 
     private Boolean requestSuccess;
     private String message;

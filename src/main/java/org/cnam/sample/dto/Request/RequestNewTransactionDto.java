@@ -6,7 +6,7 @@ import org.cnam.sample.model.TransactionModel;
 import java.math.BigDecimal;
 import java.util.UUID;
 
-public class RequestNewTransactionDto {
+public class RequestNewTransactionDto  implements RequestDto{
     private UUID idEmetteur;
     private UUID idRecepteur;
     private BigDecimal amount;
