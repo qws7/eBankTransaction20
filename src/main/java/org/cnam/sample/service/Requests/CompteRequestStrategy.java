@@ -1,10 +1,12 @@
 package org.cnam.sample.service.Requests;
 
+import org.cnam.sample.dto.Request.RequestClientDto;
 import org.cnam.sample.dto.Request.RequestDto;
 import org.cnam.sample.dto.Request.RequestWithdrawCompteDto;
 import org.cnam.sample.dto.Response.ResponseDto;
 import org.cnam.sample.dto.Response.ResponseWithdrawCompteDto;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
@@ -12,25 +14,23 @@ import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
-@Component
 public class CompteRequestStrategy implements RequestStrategy {
     private ResponseWithdrawCompteDto responseWithdrawCompteDto;
     private RequestWithdrawCompteDto requestWithdrawCompteDto;
-    private boolean status;
+    private String url_compte;
+    private String url_compte_withdraw;
+    private boolean status = true;
 
-    @Value("${application.compte.url}")
-    private String url_compte ;
-    @Value("${application.compte.feature.withdraw}")
-    private String url_compte_withdraw ;
-
-    public CompteRequestStrategy(RequestDto requestDto) {
+    public CompteRequestStrategy(String url_compte, String url_compte_withdraw) {
         this.status=false;
-        this.requestWithdrawCompteDto= (RequestWithdrawCompteDto)requestDto;
         this.responseWithdrawCompteDto = new ResponseWithdrawCompteDto();
+        this.url_compte = url_compte;
+        this.url_compte_withdraw= url_compte_withdraw;
     }
 
     @Override
-    public ResponseDto callRemote(List<String> logs) {
+    public ResponseDto callRemote(List<String> logs,RequestDto requestDto) {
+        this.requestWithdrawCompteDto = (RequestWithdrawCompteDto) requestDto;
         final RestTemplate restTemplate = new RestTemplate();
 
         try{

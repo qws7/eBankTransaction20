@@ -17,20 +17,19 @@ public class FactureRequestStrategy implements RequestStrategy{
 
     private ResponseNewFactureDto responseNewFactureDto ;
     private NewFactureDto newFactureDto;
-    private boolean status;
+    private String url_facture;
+    private String url_facture_create;
+    private boolean status = true;
 
-    @Value("${application.facture.url}")
-    private String url_facture ;
-    @Value("${application.facture.feature.create}")
-    private String url_facture_create ;
-
-    public FactureRequestStrategy(RequestDto requestDto) {
-        this.newFactureDto = (NewFactureDto) requestDto;
+    public FactureRequestStrategy(String url_facture, String url_facture_create) {
         this.responseNewFactureDto = new ResponseNewFactureDto();
+        this.url_facture = url_facture;
+        this.url_facture_create = url_facture_create;
     }
 
     @Override
-    public ResponseDto callRemote(List<String> logs) {
+    public ResponseDto callRemote(List<String> logs,RequestDto requestDto) {
+        this.newFactureDto = (NewFactureDto) requestDto;
         final RestTemplate restTemplate = new RestTemplate();
 
         try {

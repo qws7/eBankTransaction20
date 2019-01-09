@@ -8,6 +8,7 @@ import org.cnam.sample.dto.Response.ResponseDto;
 import org.cnam.sample.dto.Response.ResponseSecurityRightDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
@@ -18,20 +19,19 @@ import org.springframework.stereotype.Component;
 public class ClientRequestStrategy implements RequestStrategy {
     private ResponseClientDto responseClientDto;
     private  RequestClientDto  requestClientDto;
-    private boolean status;
-
-    @Value("${application.client.url}")
     private String url_client;
-    @Value("${application.client.feature.getLogin}")
     private String url_client_getLogin;
+    private boolean status = true;
 
-    public ClientRequestStrategy(RequestDto requestDto) {
-        this.requestClientDto = (RequestClientDto) requestDto;
+    public ClientRequestStrategy(String url_client,String url_client_getLogin) {
+        this.url_client_getLogin = url_client_getLogin;
+        this.url_client = url_client;
         this.responseClientDto = new ResponseClientDto();
     }
 
     @Override
-    public ResponseDto callRemote(List<String> logs) {
+    public ResponseDto callRemote(List<String> logs, RequestDto requestDto) {
+        this.requestClientDto = (RequestClientDto) requestDto;
         final RestTemplate restTemplate = new RestTemplate();
         try{
             logs.add("try call :"+url_client+url_client_getLogin+this.requestClientDto.getid());
@@ -41,6 +41,7 @@ public class ClientRequestStrategy implements RequestStrategy {
             logs.add("err : " + e.toString());
         }
 
+        this.status = true;
         return this.responseClientDto;
     }
 

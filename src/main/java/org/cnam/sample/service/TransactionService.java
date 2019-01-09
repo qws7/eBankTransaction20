@@ -29,12 +29,38 @@ public class TransactionService {
     private EntityManager em;
 
     @Value("${application.mail.url}")
-    private String url_mail ;
+    public String url_mail ;
     @Value("${application.mail.feature.send}")
-    private String url_mail_send ;
+    public String url_mail_send ;
+
+    @Value("${application.facture.url}")
+    public String url_facture ;
+    @Value("${application.facture.feature.create}")
+    public String url_facture_create ;
+
+    @Value("${application.compte.url}")
+    public String url_compte ;
+    @Value("${application.compte.feature.withdraw}")
+    public String url_compte_withdraw ;
+
+    @Value("${application.client.url}")
+    public String url_client;
+    @Value("${application.client.feature.getLogin}")
+    public String url_client_getLogin;
+
+    @Value("${application.securite.url}")
+    public String url_securite;
+    @Value("${application.securite.feature.service}")
+    public String url_securite_service;
+    @Value("${application.securite.feature.check}")
+    public String url_securite_check ;
 
     @Value("${application.monetique.url}")
-    private String url_monetique ;
+    public String url_monetique;
+    @Value("${application.monetique.feature.service}")
+    public String url_monetique_service;
+    @Value("${application.monetique.feature.check}")
+    public String url_monetique_check ;
 
     public TransactionService() {
     }
@@ -54,19 +80,27 @@ public class TransactionService {
         message.add("Recv :"+transactionModel.getIdRecepteur());
         message.add("Emet :"+transactionModel.getIdEmetteur());
         message.add("Amount :"+transactionModel.getAmount().toString());
-        message.add("mail : " + url_mail );
 
         //ask user to have login
-        requestStrategy = new ClientRequestStrategy(new RequestClientDto(transactionModel.getIdEmetteur()));
-        ResponseClientDto responseClientDto = (ResponseClientDto ) requestStrategy.callRemote(message);
+        requestStrategy = new ClientRequestStrategy(url_client,url_client_getLogin);
+        ResponseClientDto responseClientDto = (ResponseClientDto ) requestStrategy.callRemote(message,new RequestClientDto(transactionModel.getIdEmetteur()));
+        if(!requestStrategy.status(message)){
+            err = true;
+            message.add("err :"+"Error with Client, see mail");
+        }
+
+        //ask Security for auth for login
+        requestStrategy = new SecurityRequestStrategy(url_securite, url_securite_check,url_securite_service);
+        requestStrategy.callRemote(message,new RequestSecurityRightDto(responseClientDto.getLastName(),"Transaction"));
         if(!requestStrategy.status(message)){
             err = true;
             message.add("err :"+"Error with Security, see mail");
         }
 
-        //ask Security for auth for login
-        requestStrategy = new SecurityRequestStrategy(new RequestSecurityRightDto(responseClientDto.getLastName(),"Transaction"));
-        requestStrategy.callRemote(message);
+
+        //ask monetique if card can pay (isn't blocked)
+        requestStrategy = new MonetiqueRequestStrategy(url_monetique, url_monetique_check,url_monetique_service);
+        requestStrategy.callRemote(message,new RequestMonetiqueDto(transactionModel.getIdType().toString()));
         if(!requestStrategy.status(message)){
             err = true;
             message.add("err :"+"Error with Security, see mail");
@@ -74,8 +108,8 @@ public class TransactionService {
 
         //ask withdraw account
         message.add("cd_label :" + "Withdraw");
-        requestStrategy = new CompteRequestStrategy(new RequestWithdrawCompteDto(UUID.fromString(transactionModel.getIdEmetteur()),transactionModel.getAmount().negate()));
-        requestStrategy.callRemote(message);
+        requestStrategy = new CompteRequestStrategy(url_compte,  url_compte_withdraw);
+        requestStrategy.callRemote(message,new RequestWithdrawCompteDto(UUID.fromString(transactionModel.getIdEmetteur()),transactionModel.getAmount().negate()));
         if(!requestStrategy.status(message)){
             err = true;
             message.add("err :"+"Error width withdrawal, see mail");
@@ -83,16 +117,16 @@ public class TransactionService {
 
         //ask credit account
         message.add("cd_label: " + "Credit");
-        requestStrategy = new CompteRequestStrategy(new RequestWithdrawCompteDto(UUID.fromString(transactionModel.getIdRecepteur()), transactionModel.getAmount()));
-        requestStrategy.callRemote(message);
+        requestStrategy = new CompteRequestStrategy(url_compte, url_compte_withdraw);
+        requestStrategy.callRemote(message,new RequestWithdrawCompteDto(UUID.fromString(transactionModel.getIdRecepteur()), transactionModel.getAmount()));
         if(!requestStrategy.status(message)){
             err = true;
             message.add("err :"+"Error width credit, see mail");
         }
 
         //create  facture
-        requestStrategy = new FactureRequestStrategy(new NewFactureDto(UUID.fromString(transactionModel.getIdEmetteur()),"transaction",1.0,Date.from(Instant.now())));
-        requestStrategy.callRemote(message);
+        requestStrategy = new FactureRequestStrategy(url_facture,url_facture_create);
+        requestStrategy.callRemote(message,new NewFactureDto(UUID.fromString(transactionModel.getIdEmetteur()),"transaction",1.0,Date.from(Instant.now())));
         if(!requestStrategy.status(message)){
             err = true;
             message.add("err :"+"Error with facture, see mail");

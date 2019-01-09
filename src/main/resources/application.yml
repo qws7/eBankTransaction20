@@ -51,7 +51,8 @@ application:
       check : /user/
       service : /rights/transaction
   monetique :
-    url: http://192.168.43.244:8085
+    url: http://192.168.43.1:8095
     feature:
       getCards : /GetIdCb
-      auth : /pay
+      check : /monetique/
+      service : /pay

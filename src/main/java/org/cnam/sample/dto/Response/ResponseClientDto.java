@@ -1,7 +1,5 @@
 package org.cnam.sample.dto.Response;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import java.time.LocalDate;
 import java.util.UUID;
 
 public class ResponseClientDto implements ResponseDto{
@@ -14,8 +12,7 @@ public class ResponseClientDto implements ResponseDto{
 
     private String mail;
 
-    @JsonFormat(pattern = "dd-MM-yyyy")
-    private LocalDate birthDate;
+    private String birthString;
 
     public String getLastName() {
         return lastName;
@@ -41,12 +38,12 @@ public class ResponseClientDto implements ResponseDto{
         this.mail = mail;
     }
 
-    public LocalDate getBirthDate() {
-        return birthDate;
+    public String getBirthString() {
+        return birthString;
     }
 
-    public void setBirthDate(LocalDate birthDate) {
-        this.birthDate = birthDate;
+    public void setBirthString(String birthString) {
+        this.birthString = birthString;
     }
 
     public UUID getId() {
@@ -60,11 +57,11 @@ public class ResponseClientDto implements ResponseDto{
     public ResponseClientDto() {
     }
 
-    public ResponseClientDto(UUID id, String lastName, String firstName, String mail, LocalDate birthDate) {
+    public ResponseClientDto(UUID id, String lastName, String firstName, String mail, String birthString) {
         this.id = id;
         this.lastName = lastName;
         this.firstName = firstName;
         this.mail = mail;
-        this.birthDate = birthDate;
+        this.birthString = birthString;
     }
 }
