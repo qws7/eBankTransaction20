@@ -3,11 +3,7 @@ import org.cnam.sample.domain.Email;
 
 import java.util.Map;
 
-public class mailRequestDto implements RequestDto{
-
-    // Voir ci-dessous
-    private Email email;
-
+public class RequestMailDto implements RequestDto{
     public Email getEmail() {
         return email;
     }
@@ -24,12 +20,18 @@ public class mailRequestDto implements RequestDto{
         this.service = service;
     }
 
+    // Voir ci-dessous
+    private Email email;
+
     // Nom de votre service
     private String service;
 
-    public mailRequestDto(Email email,String service){
+    public RequestMailDto(Email email,String service){
         this.email = email;
         this.service = service;
+    }
+
+    public RequestMailDto() {
     }
 }
 

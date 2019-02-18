@@ -1,5 +1,6 @@
 package org.cnam.sample.service;
 
+import org.cnam.sample.domain.Email;
 import org.cnam.sample.domain.Transaction;
 import org.cnam.sample.dto.Request.*;
 import org.cnam.sample.dto.Response.*;
@@ -86,7 +87,7 @@ public class TransactionService {
         ResponseClientDto responseClientDto = (ResponseClientDto ) requestStrategy.callRemote(message,new RequestClientDto(transactionModel.getIdEmetteur()));
         if(!requestStrategy.status(message)){
             err = true;
-            message.add("err :"+"Error with Client, see mail");
+            message.add("err :"+"Error with Client");
         }
 
         //ask Security for auth for login
@@ -94,7 +95,7 @@ public class TransactionService {
         requestStrategy.callRemote(message,new RequestSecurityRightDto(responseClientDto.getLastName(),"Transaction"));
         if(!requestStrategy.status(message)){
             err = true;
-            message.add("err :"+"Error with Security, see mail");
+            message.add("err :"+"Error with Security");
         }
 
 
@@ -103,7 +104,7 @@ public class TransactionService {
         requestStrategy.callRemote(message,new RequestMonetiqueDto(transactionModel.getIdType().toString()));
         if(!requestStrategy.status(message)){
             err = true;
-            message.add("err :"+"Error with Security, see mail");
+            message.add("err :"+"Error with Monetique");
         }
 
         //ask withdraw account
@@ -112,7 +113,7 @@ public class TransactionService {
         requestStrategy.callRemote(message,new RequestWithdrawCompteDto(UUID.fromString(transactionModel.getIdEmetteur()),transactionModel.getAmount().negate()));
         if(!requestStrategy.status(message)){
             err = true;
-            message.add("err :"+"Error width withdrawal, see mail");
+            message.add("err :"+"Error width Account withdrawal");
         }
 
         //ask credit account
@@ -121,7 +122,7 @@ public class TransactionService {
         requestStrategy.callRemote(message,new RequestWithdrawCompteDto(UUID.fromString(transactionModel.getIdRecepteur()), transactionModel.getAmount()));
         if(!requestStrategy.status(message)){
             err = true;
-            message.add("err :"+"Error width credit, see mail");
+            message.add("err :"+"Error width Account Crediting");
         }
 
         //create  facture
@@ -129,7 +130,7 @@ public class TransactionService {
         requestStrategy.callRemote(message,new NewFactureDto(UUID.fromString(transactionModel.getIdEmetteur()),"transaction",1.0,Date.from(Instant.now())));
         if(!requestStrategy.status(message)){
             err = true;
-            message.add("err :"+"Error with facture, see mail");
+            message.add("err :"+"Error with Facture");
         }
 
         TransactionModel transacModelSaved = transactionModel;
@@ -139,6 +140,13 @@ public class TransactionService {
            transacModelSaved = transactionRepository.save(transactionModel);
 
         //call mail
+        requestStrategy = new EmailRequestStrategy(url_mail,url_mail_send);
+        HashMap<String,String> vals = new HashMap<>();
+        vals.put("message",String.join(" \r\n", message));
+        Email email = new Email("cnam@grobert.ovh",vals);
+        requestStrategy.callRemote(message,new RequestMailDto(email,"Transaction"));
+        requestStrategy.status(message);
+
         //callRemoteServiceMail("Transaction",message,transactionModel.getIdRecepteur());
         //callRemoteServiceMail("Transaction",message,transactionModel.getIdEmetteur());
 

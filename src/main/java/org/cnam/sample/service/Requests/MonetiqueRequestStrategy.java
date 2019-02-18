@@ -48,7 +48,7 @@ public class MonetiqueRequestStrategy implements RequestStrategy {
         logs.add("secu_label : Res monetique");
         logs.add("is card blocked : "+ (responseMonetiqueDto.isBlocked() ? "true" : "false" ));
 
-        return responseMonetiqueDto.isBlocked();
+        return !responseMonetiqueDto.isBlocked();
     }
 }
 

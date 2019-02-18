@@ -3,8 +3,22 @@ package org.cnam.sample.domain;
 import java.util.HashMap;
 
 public class Email {
-    // Selection du template associé au service
-    private EmailTemplate emailTemplate;
+
+    public String getRecipient() {
+        return recipient;
+    }
+
+    public void setRecipient(String recipient) {
+        this.recipient = recipient;
+    }
+
+    public HashMap<String, String> getValues() {
+        return values;
+    }
+
+    public void setValues(HashMap<String, String> values) {
+        this.values = values;
+    }
 
     // Personne à qui l'on envoie l'email
     private String recipient;
@@ -12,8 +26,10 @@ public class Email {
     // HashMap clé/valeur : pour remplacer les valeurs dans le template choisi
     private HashMap<String,String> values;
 
-    public Email(EmailTemplate emailTemplate, String recipient, HashMap<String, String> values) {
-        this.emailTemplate = emailTemplate;
+    public Email() {
+    }
+
+    public Email(String recipient, HashMap<String, String> values) {
         this.recipient = recipient;
         this.values = values;
     }
