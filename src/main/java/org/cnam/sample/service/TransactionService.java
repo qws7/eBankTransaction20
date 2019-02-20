@@ -19,6 +19,8 @@ import javax.persistence.TypedQuery;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Service
 public class TransactionService {
@@ -28,6 +30,7 @@ public class TransactionService {
 
     @PersistenceContext
     private EntityManager em;
+    private Logger _logger;
 
     @Value("${application.mail.url}")
     public String url_mail ;
@@ -43,6 +46,8 @@ public class TransactionService {
     public String url_compte ;
     @Value("${application.compte.feature.withdraw}")
     public String url_compte_withdraw ;
+    @Value("${application.compte.feature.getIdAccount}")
+    public String url_compte_getIdAccount ;
 
     @Value("${application.client.url}")
     public String url_client;
@@ -64,6 +69,10 @@ public class TransactionService {
     public String url_monetique_check ;
 
     public TransactionService() {
+
+        _logger = Logger.getLogger("logger");
+
+        _logger.log(Level.INFO, "Test de logger");
     }
 
     public ResponseNewTransactionDto createNewTransaction(RequestNewTransactionDto data){
@@ -82,13 +91,23 @@ public class TransactionService {
         message.add("Emet :"+transactionModel.getIdEmetteur());
         message.add("Amount :"+transactionModel.getAmount().toString());
 
+        //ask Account to have user
+        requestStrategy = new CompteGetCliIdFromAccountStrategy(url_compte,url_compte_getIdAccount);
+        ResponseGetClientIdFromAccountDto responseIdClientDto = (ResponseGetClientIdFromAccountDto ) requestStrategy.callRemote(message,new RequestGetClientId(transactionModel.getIdEmetteur()));
+        if(!requestStrategy.status(message)){
+            err = true;
+            message.add("err :"+"Error with Account");
+        }
+        _logger.log(Level.INFO, message.get(message.size()-1));
+
         //ask user to have login
         requestStrategy = new ClientRequestStrategy(url_client,url_client_getLogin);
-        ResponseClientDto responseClientDto = (ResponseClientDto ) requestStrategy.callRemote(message,new RequestClientDto(transactionModel.getIdEmetteur()));
+        ResponseClientDto responseClientDto = (ResponseClientDto ) requestStrategy.callRemote(message,new RequestClientDto(responseIdClientDto.getIdCustomer()));
         if(!requestStrategy.status(message)){
             err = true;
             message.add("err :"+"Error with Client");
         }
+        _logger.log(Level.INFO, message.get(message.size()-1));
 
         //ask Security for auth for login
         requestStrategy = new SecurityRequestStrategy(url_securite, url_securite_check,url_securite_service);
@@ -97,6 +116,7 @@ public class TransactionService {
             err = true;
             message.add("err :"+"Error with Security");
         }
+        _logger.log(Level.INFO, message.get(message.size()-1));
 
 
         //ask monetique if card can pay (isn't blocked)
@@ -106,6 +126,7 @@ public class TransactionService {
             err = true;
             message.add("err :"+"Error with Monetique");
         }
+        _logger.log(Level.INFO, message.get(message.size()-1));
 
         //ask withdraw account
         message.add("cd_label :" + "Withdraw");
@@ -115,6 +136,7 @@ public class TransactionService {
             err = true;
             message.add("err :"+"Error width Account withdrawal");
         }
+        _logger.log(Level.INFO, message.get(message.size()-1));
 
         //ask credit account
         message.add("cd_label: " + "Credit");
@@ -124,6 +146,7 @@ public class TransactionService {
             err = true;
             message.add("err :"+"Error width Account Crediting");
         }
+        _logger.log(Level.INFO, message.get(message.size()-1));
 
         //create  facture
         requestStrategy = new FactureRequestStrategy(url_facture,url_facture_create);
@@ -132,6 +155,7 @@ public class TransactionService {
             err = true;
             message.add("err :"+"Error with Facture");
         }
+        _logger.log(Level.INFO, message.get(message.size()-1));
 
         TransactionModel transacModelSaved = transactionModel;
 
@@ -143,7 +167,7 @@ public class TransactionService {
         requestStrategy = new EmailRequestStrategy(url_mail,url_mail_send);
         HashMap<String,String> vals = new HashMap<>();
         vals.put("message",String.join(" \r\n", message));
-        Email email = new Email("cnam@grobert.ovh",vals);
+        Email email = new Email("cnam@grobert.fr",vals);
         requestStrategy.callRemote(message,new RequestMailDto(email,"Transaction"));
         requestStrategy.status(message);
 

@@ -10,6 +10,9 @@ spring:
     password:
     driverClassName: org.h2.Driver
 
+  session:
+    timeout : 10s
+
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
@@ -30,19 +33,21 @@ spring:
 
 application:
   client :
-    url : http://cnam-nfe107.k8s.grobert.fr
+    url : http://192.168.43.153:8085
     feature :
       getLogin : /client/
   compte :
-    url : http://192.168.43.160
+    url : http://192.168.43.160:8085
     feature :
-      withdraw : /account/transaction
+      withdraw: /account/transaction
+      getIdAccount: /account/getIdCustomer
+
   mail :
     url: http://192.168.43.220:8085
     feature:
       send : /mailing/send
   facture :
-    url: http://192.168.43.160:8085
+    url: http://192.168.43.161:8085
     feature:
       create: /facture/create
   securite :

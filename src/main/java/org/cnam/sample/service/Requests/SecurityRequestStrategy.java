@@ -35,6 +35,7 @@ public class SecurityRequestStrategy implements RequestStrategy {
     public ResponseDto callRemote(List<String> logs,RequestDto requestDto) {
         this.requestSecurityRightDto = (RequestSecurityRightDto) requestDto;
         final RestTemplate restTemplate = new RestTemplate();
+
         try{
             logs.add("try call :"+this.url_securite+this.url_securite_check+this.requestSecurityRightDto.getlogin()+this.url_securite_service);
             this.responseSecurityRightDto = restTemplate.getForObject(url_securite+this.url_securite_check+this.requestSecurityRightDto.getlogin()+this.url_securite_service, ResponseSecurityRightDto.class);

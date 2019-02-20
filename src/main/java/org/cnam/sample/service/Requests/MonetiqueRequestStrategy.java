@@ -28,6 +28,7 @@ public class MonetiqueRequestStrategy implements RequestStrategy {
     public ResponseDto callRemote(List<String> logs, RequestDto requestDto) {
         this.requestMonetiqueDto = (RequestMonetiqueDto) requestDto;
         final RestTemplate restTemplate = new RestTemplate();
+
         try{
             logs.add("try call :"+this.url_monetique+this.url_monetique_check+this.requestMonetiqueDto.getid()+this.url_monetique_service);
             this.responseMonetiqueDto = restTemplate.getForObject(url_monetique+this.url_monetique_check+this.requestMonetiqueDto.getid()+this.url_monetique_service, ResponseMonetiqueDto.class);

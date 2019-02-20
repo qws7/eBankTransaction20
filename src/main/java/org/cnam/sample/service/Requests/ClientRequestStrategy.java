@@ -33,6 +33,7 @@ public class ClientRequestStrategy implements RequestStrategy {
     public ResponseDto callRemote(List<String> logs, RequestDto requestDto) {
         this.requestClientDto = (RequestClientDto) requestDto;
         final RestTemplate restTemplate = new RestTemplate();
+
         try{
             logs.add("try call :"+url_client+url_client_getLogin+this.requestClientDto.getid());
             this.responseClientDto = restTemplate.getForObject(url_client+url_client_getLogin+this.requestClientDto.getid(), ResponseClientDto.class);

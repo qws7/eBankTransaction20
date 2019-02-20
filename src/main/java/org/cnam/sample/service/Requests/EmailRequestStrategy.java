@@ -27,6 +27,7 @@ public class EmailRequestStrategy implements RequestStrategy{
     public ResponseDto callRemote(List<String> logs, RequestDto requestMailDto) {
         this.requestMailDto = (RequestMailDto) requestMailDto;
         final RestTemplate restTemplate = new RestTemplate();
+
         try{
             this.responseMailDto = restTemplate.postForObject( url_mail + url_mail_send ,requestMailDto, ResponseMailDto.class);
         }catch(Exception e){
