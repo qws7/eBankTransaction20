@@ -73,7 +73,7 @@ public class TransactionModel {
         this.type = type;
     }
 
-    public void setIdType(UUID idType) {
-        this.idType = idType.toString();
+    public void setIdType(String idType) {
+        this.idType = idType;
     }
 }

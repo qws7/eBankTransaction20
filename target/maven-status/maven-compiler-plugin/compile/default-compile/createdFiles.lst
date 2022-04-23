@@ -1,0 +1,10 @@
+org\cnam\sample\service\Requests\MonetiqueRequestStrategy.class
+org\cnam\sample\dto\Response\ResponseGetClientIdFromAccountDto.class
+org\cnam\sample\dto\Request\RequestMailDto.class
+org\cnam\sample\domain\EmailTemplateDto.class
+org\cnam\sample\dto\Response\ResponseMonetiqueDto.class
+org\cnam\sample\dto\Request\RequestMonetiqueDto.class
+org\cnam\sample\service\Requests\CompteGetCliIdFromAccountStrategy.class
+org\cnam\sample\dto\Request\RequestGetClientId.class
+org\cnam\sample\service\Requests\EmailRequestStrategy.class
+org\cnam\sample\dto\Response\ResponseMailDto.class

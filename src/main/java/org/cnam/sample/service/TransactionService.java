@@ -81,7 +81,7 @@ public class TransactionService {
         transactionModel.setIdRecepteur(  data.getIdRecepteur());
         transactionModel.setAmount(  data.getAmount());
         transactionModel.setType(  data.getType());
-        transactionModel.setIdType(  UUID.fromString(data.getIdType()));
+        transactionModel.setIdType(  data.getIdType());
         List<String> message = new ArrayList<String>();
         RequestStrategy requestStrategy;
         boolean err = false;
